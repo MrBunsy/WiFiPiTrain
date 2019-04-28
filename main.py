@@ -1,74 +1,104 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function, division
-from gpiozero import Motor
 
-motor = Motor(23,24)
+from gpiozero import Motor, PWMLED
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from io import BytesIO
+# from urllib.parse import urlparse
+import urllib
+from urllib.parse import parse_qs
+import json
 
-
-
-# from RPIO import PWM
-# import RPIO
-
-# import SimpleHTTPServer
-# import SocketServer
-#
-# class MyRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-#     def do_GET(self):
-#         if self.path == '/':
-#             self.path = '/simplehttpwebpage_content.html'
-#         return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
-#
-# Handler = MyRequestHandler
-# server = SocketServer.TCPServer(('0.0.0.0', 8080), Handler)
-#
-# server.serve_forever()
-
-# import RPi.GPIO as GPIO
-# GPIO.setmode(GPIO.BOARD)
-# GPIO.setup(16, GPIO.OUT)
-#
-# p = GPIO.PWM(16, 1000)
-# p.start(0.5)
-# input('Press return to stop:')   # use raw_input for Python 2
-# p.stop()
-# GPIO.cleanup()
+ON_PI = False
 
 
+# motor = Motor(23,24)
+
+class Train():
+    def __init__(self, motorPin0=23, motorPin1=24, real=ON_PI, frontWhite=25, frontRed=8, rearRed=7, readWhite=1):
+        self.motor = None;
+        self.frontWhiteLight = None
+        self.frontRedLights = None
+        self.rearWhiteLights = None
+        self.rearRedLights = None
+        self.real = real
+        if real:
+            self.motor = Motor(motorPin0, motorPin1)
+            # self.frontWhiteLight = PWMLED()
+            # TODO lights
+
+    def getSpeed(self):
+        if self.real:
+            return self.motor.value
+        return 0
 
 
-# servo = PWM.Servo()
-#
-# # Set servo on GPIO17 to 1200µs (1.2ms)
-# servo.set_servo(17, 1200)
-#
-# # Set servo on GPIO17 to 2000µs (2.0ms)
-# servo.set_servo(17, 2000)
-#
-# # Clear servo on GPIO17
-# servo.stop_servo(17)
-#
-# RPIO.setup(24, RPIO.OUT)
-# RPIO.output(24, True)
-#
-# PWM.setup()
-# # 100us, 10kHz
-# # PWM.init_channel(0, 100)
-# PWM.init_channel(0)
-#
-# # while True:
-# #     add_channel_pulse(0, 23, 0, )
-#
-# # Add some pulses to the subcycle
-# PWM.add_channel_pulse(0, 23, 0, 50)
-# PWM.add_channel_pulse(0, 23, 100, 50)
-#
-# while True:
-#     print('.')
-#
-# # Stop PWM for specific GPIO on channel 0
-# PWM.clear_channel_gpio(0, 23)
-#
-# # Shutdown all PWM and DMA activity
-# PWM.cleanup()
-#
-# RPIO.cleanup()
+    def setSpeed(self, speed):
+        '''
+
+        :param speed: between -1 and 1, 0 represents not moving
+        :return:
+        '''
+
+        if 1 < speed < -1:
+            print("Invalid speed")
+            return
+
+        if self.real:
+            if speed > 0:
+                self.motor.forward(speed)
+            elif speed < 0:
+                self.motor.backward(speed)
+            else:
+                self.motor.stop()
+
+    def serialise(self):
+        return json.dumps({"speed": self.getSpeed()})
+
+
+train = Train()
+
+
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        print("GET - reporting status")
+        self.wfile.write(train.serialise().encode("ASCII"))
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_length)
+
+        data = parse_qs(body);
+
+        print(data)
+
+        if "speed" in data:
+            if len(data["speed"]) > 0:
+                train.setSpeed(float(data["speed"]))
+
+        self.send_response(200)
+        self.end_headers()
+        # response = BytesIO()
+        # response.write(b'This is POST request to  ')
+        # response.write(self.path.encode('ASCII'))
+        # response.write(b' Received: ')
+        # response.write(body)
+        # self.wfile.write(response.getvalue())
+        self.wfile.write(train.serialise().encode("ASCII"))
+
+
+httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
+httpd.serve_forever()
+
+
+"""
+POST /drive HTTP/1.1
+Host: foo.example
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 9
+
+speed=0.6
+
+"""
