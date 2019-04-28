@@ -73,10 +73,10 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         print(data)
 
-        if "speed" in data:
-            if len(data["speed"]) > 0:
-                print("settings speed to {}".format(speed))
-                train.setSpeed(float(data["speed"]))
+        if b'speed' in data:
+            if len(data[b'speed']) > 0:
+                print("setting speed to {}".format(data[b'speed'][0]))
+                train.setSpeed(float(data[b'speed'][0]))
 
         self.send_response(200)
         self.end_headers()
