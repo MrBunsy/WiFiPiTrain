@@ -32,7 +32,6 @@ class Train():
             return self.motor.value
         return 0
 
-
     def setSpeed(self, speed):
         '''
 
@@ -76,6 +75,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         if "speed" in data:
             if len(data["speed"]) > 0:
+                print("settings speed to {}".format(speed))
                 train.setSpeed(float(data["speed"]))
 
         self.send_response(200)
@@ -89,9 +89,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(train.serialise().encode("ASCII"))
 
 
-httpd = HTTPServer(('localhost', 8000), SimpleHTTPRequestHandler)
+httpd = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
 httpd.serve_forever()
-
 
 """
 POST /drive HTTP/1.1
@@ -100,5 +99,15 @@ Content-Type: application/x-www-form-urlencoded
 Content-Length: 9
 
 speed=0.6
+
+"""
+
+"""
+POST /drive HTTP/1.1
+Host: foo.example
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 7
+
+speed=0
 
 """
