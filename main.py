@@ -70,12 +70,13 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         body = self.rfile.read(content_length)
-        print(body)
+        print(body.decode("ASCII"))
+        # print(str(body))
         # data = parse_qs(body);
         #
         # print(data)
 
-        data = json.dumps(body)
+        data = json.dumps(body.decode("ASCII"))
 
         if b'speed' in data:
             if len(data[b'speed']) > 0:
