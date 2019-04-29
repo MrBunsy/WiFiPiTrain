@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Train, TrainControlService } from '../train-control.service';
 
 @Component({
   selector: 'app-train-driver',
@@ -7,7 +9,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TrainDriverComponent implements OnInit {
 
-  constructor() { }
+  constructor(private trainControl: TrainControlService) {
+    this.train = this.trainControl.getTrainState();
+
+  }
+
+  public train: Observable<Train>
+
+  public changeSpeed(changeBy: number) {
+    this.trainControl.changeSpeed(changeBy);
+  }
 
   ngOnInit() {
   }
