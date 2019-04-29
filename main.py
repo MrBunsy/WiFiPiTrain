@@ -8,8 +8,10 @@ from io import BytesIO
 import urllib
 from urllib.parse import parse_qs
 import json
+import os.path
 
-ON_PI = False
+#hacky
+ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
 
 
 # motor = Motor(23,24)
