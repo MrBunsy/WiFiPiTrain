@@ -79,11 +79,11 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         data = json.dumps(body.decode("ASCII"))
 
         if 'speed' in data:
-            if len(data['speed']) > 0:
-                print("setting speed to {}".format(data['speed'][0]))
-                train.setSpeed(float(data['speed'][0]))
-            else:
-                print("insuficient speed data")
+            # if len(data['speed']) > 0:
+            #     print("setting speed to {}".format(data['speed'][0]))
+            train.setSpeed(float(data['speed']))
+            # else:
+            #     print("insuficient speed data")
         else:
             print("no speed data")
 
