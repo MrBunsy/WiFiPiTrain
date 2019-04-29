@@ -28,7 +28,7 @@ export class TrainControlService {
 
   constructor(private http: HttpClient) {
 
-    this.trainUrl = "/train";
+    this.trainUrl = "/train/";
 
     this.trainUpdated = new BehaviorSubject<boolean>(true);
 
