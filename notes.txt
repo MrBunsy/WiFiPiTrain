@@ -1,0 +1,5 @@
+
+
+requires RPi.GPIO and gpiozero to be installed
+
+user must be part of the gpio group to run without root
