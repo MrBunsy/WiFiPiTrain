@@ -41,14 +41,20 @@ class Train():
         :return:
         '''
 
-        if 1 < speed < -1:
-            print("Invalid speed")
-            return
+        # if 1 < speed < -1:
+        #     print("Invalid speed")
+        #     # return
+
+        if speed < -1:
+            speed = -1
+
+        if speed > 1:
+            speed = 1
 
         if self.real:
-            if speed > 0:
+            if speed > 0.05:
                 self.motor.forward(speed)
-            elif speed < 0:
+            elif speed < -0.05:
                 self.motor.backward(speed)
             else:
                 self.motor.stop()
