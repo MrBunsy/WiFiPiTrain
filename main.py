@@ -10,7 +10,7 @@ from urllib.parse import parse_qs
 import json
 import os.path
 
-#hacky
+# hacky
 ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
 
 
@@ -70,15 +70,21 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         body = self.rfile.read(content_length)
+        print(body)
+        # data = parse_qs(body);
+        #
+        # print(data)
 
-        data = parse_qs(body);
-
-        print(data)
+        data = json.dumps(body)
 
         if b'speed' in data:
             if len(data[b'speed']) > 0:
                 print("setting speed to {}".format(data[b'speed'][0]))
                 train.setSpeed(float(data[b'speed'][0]))
+            else:
+                print("insuficient speed data")
+        else:
+            print("no speed data")
 
         self.send_response(200)
         self.end_headers()

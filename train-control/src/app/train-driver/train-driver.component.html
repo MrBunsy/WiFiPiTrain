@@ -1,3 +1,5 @@
-Current speed: {{(train | async).speed}}
-<button (click)="changeSpeed(+0.1)">More Forward</button>
-<button (click)="changeSpeed(-0.1)">More Backward</button>
+<div>
+  Current speed: {{(train | async).speed}}
+  <button (click)="changeSpeed(+0.1)">More Forward</button>
+  <button (click)="changeSpeed(-0.1)">More Backward</button>
+</div>
