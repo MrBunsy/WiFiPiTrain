@@ -55,7 +55,7 @@ class Train():
             if speed > 0.05:
                 self.motor.forward(speed)
             elif speed < -0.05:
-                self.motor.backward(speed)
+                self.motor.backward(-speed)
             else:
                 self.motor.stop()
 
