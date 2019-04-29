@@ -76,7 +76,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         #
         # print(data)
 
-        data = json.dumps(body.decode("ASCII"))
+        data = json.loads(body.decode("ASCII"))
 
         if 'speed' in data:
             # if len(data['speed']) > 0:
