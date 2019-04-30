@@ -3,3 +3,9 @@
 requires RPi.GPIO and gpiozero to be installed
 
 user must be part of the gpio group to run without root
+
+
+sudo modprobe bcm2835-v4l2
+
+
+https://github.com/kclyu/rpi-webrtc-streamer
