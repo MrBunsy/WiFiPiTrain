@@ -25,7 +25,13 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "src/assets/js/third_party/graph.js",
+              "src/assets/js/common.js",
+              "src/assets/js/peerconnection_client.js",
+              "src/assets/js/sdputils.js",
+              "src/assets/js/websocket_signaling.js"
+            ],
             "es5BrowserSupport": true
           },
           "configurations": {

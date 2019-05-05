@@ -9,3 +9,6 @@ sudo modprobe bcm2835-v4l2
 
 
 https://github.com/kclyu/rpi-webrtc-streamer
+
+
+ ng build && scp -r dist/train-control trains@192.168.1.100:~/train-control

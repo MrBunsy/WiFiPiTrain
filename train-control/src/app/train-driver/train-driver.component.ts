@@ -2,8 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Train, TrainControlService } from '../train-control.service';
 
+/**
+ * Component to provide a throttle and other controls
+ */
 @Component({
-  selector: 'app-train-driver',
+  selector: 'train-driver',
   templateUrl: './train-driver.component.html',
   styleUrls: ['./train-driver.component.css']
 })
