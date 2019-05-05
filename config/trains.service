@@ -1,0 +1,16 @@
+# /lib/systemd/system/trains.service
+[Unit]
+Description=WiFiPiTrain motor control
+After=syslog.target
+
+[Service]
+Type=simple
+#PIDFile=/var/run/trains.pid
+ExecStart=/usr/bin/python3 /usr/share/trains/main.py
+StandardOutput=journal
+StandardError=journal
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
