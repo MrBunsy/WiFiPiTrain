@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, interval } from 'rxjs';
 import { switchMap, tap, first } from 'rxjs/operators';
 
 export class Train {
@@ -32,8 +32,10 @@ export class TrainControlService {
 
     this.trainUpdated = new BehaviorSubject<boolean>(true);
 
-    this.trainState = this.trainUpdated.asObservable().pipe(
-      switchMap(updated => this.fetchTrainState())
+    let checkForUpdates = interval(1000);
+
+    this.trainState = combineLatest(this.trainUpdated.asObservable(), checkForUpdates).pipe(
+      switchMap(([updated, check]) => this.fetchTrainState())
     )
 
 
