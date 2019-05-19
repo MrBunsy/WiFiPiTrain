@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, combineLatest, interval } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, interval, merge, Subject } from 'rxjs';
 import { switchMap, tap, first } from 'rxjs/operators';
 
 export class Train {
@@ -20,7 +20,7 @@ export class TrainControlService {
   /**
    * We need to go and fetch new motor state
    */
-  private trainUpdated: BehaviorSubject<boolean>
+  private trainUpdated: Subject<Train>
   private trainState: Observable<Train>;
   private trainUrl: string;
 
@@ -30,13 +30,15 @@ export class TrainControlService {
 
     this.trainUrl = "/train/";
 
-    this.trainUpdated = new BehaviorSubject<boolean>(true);
+    this.trainUpdated = new Subject<Train>();
 
     let checkForUpdates = interval(1000);
 
-    this.trainState = combineLatest(this.trainUpdated.asObservable(), checkForUpdates).pipe(
-      switchMap(([updated, check]) => this.fetchTrainState())
+    let updatingTrain = checkForUpdates.pipe(
+      switchMap(now => this.fetchTrainState())
     )
+
+    this.trainState = merge(this.trainUpdated.asObservable(), updatingTrain);
 
 
   }
@@ -53,7 +55,7 @@ export class TrainControlService {
     let request = this.http.post<Train>(this.trainUrl, { speed: speed }, httpOptions).pipe(
       // tap((newHero: Hero) => this.log(`added hero w/ id=${newHero.id}`)),
       // catchError(this.handleError<Hero>('addHero'))
-      tap(train => this.trainUpdated.next(true))
+      tap(train => this.trainUpdated.next(train))
     );
 
     return request;
@@ -61,8 +63,10 @@ export class TrainControlService {
   }
 
   public changeSpeed(changeBy: number) {
-    let request = this.trainState.pipe(
-      switchMap(train => this.setTrainSpeedRequest(train.speed + changeBy))
+    let request = this.fetchTrainState().pipe(
+      tap(train => console.log("current train speed: " + train.speed + " request change of " + changeBy)),
+      switchMap(train => this.setTrainSpeedRequest(train.speed + changeBy)),
+
     ).pipe(first()).toPromise().then();
   }
 
