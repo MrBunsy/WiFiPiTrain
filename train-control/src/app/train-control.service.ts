@@ -50,8 +50,6 @@ export class TrainControlService {
 
   public setTrainSpeed(speed: number) {
 
-    if(speed > 0 && speed < 0.1)
-
     this.setTrainSpeedRequest(speed).pipe(first()).toPromise().then();
   }
 
