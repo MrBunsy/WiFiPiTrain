@@ -2,5 +2,8 @@
 
   <button (click)="changeSpeed(+0.1)">More Forward</button>
   <button (click)="changeSpeed(-0.1)">More Backward</button>
-  Current speed: {{(train | async)?.speed}}
+  Current speed: {{currentSpeed$ | async}}
+  <br>
+  <button (click)="stop()">STOP</button>
+  <mat-slider mouseWheel [value]="(train | async)?.speed" min="0" max="1" step="0.02" vertical (mouseWheelUp)="mouseWheelUpFunc(event)" (mouseWheelDown)="mouseWheelDownFunc(event)"></mat-slider>
 </div>

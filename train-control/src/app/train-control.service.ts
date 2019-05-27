@@ -5,6 +5,7 @@ import { switchMap, tap, first } from 'rxjs/operators';
 
 export class Train {
   public speed: number;
+  public deadZone: number;
   //todo lights
 }
 
@@ -48,13 +49,15 @@ export class TrainControlService {
   }
 
   public setTrainSpeed(speed: number) {
+
+    if(speed > 0 && speed < 0.1)
+
     this.setTrainSpeedRequest(speed).pipe(first()).toPromise().then();
   }
 
   private setTrainSpeedRequest(speed: number): Observable<Train> {
     let request = this.http.post<Train>(this.trainUrl, { speed: speed }, httpOptions).pipe(
-      // tap((newHero: Hero) => this.log(`added hero w/ id=${newHero.id}`)),
-      // catchError(this.handleError<Hero>('addHero'))
+      //since we get the current train state in reply to any change request, make use of it
       tap(train => this.trainUpdated.next(train))
     );
 
@@ -69,7 +72,6 @@ export class TrainControlService {
 
     ).pipe(first()).toPromise().then();
   }
-
 
   /**
    * perform HTTP request to get latest train state

@@ -17,22 +17,38 @@ ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
 # motor = Motor(23,24)
 
 class Train():
-    def __init__(self, motorPin0=23, motorPin1=24, real=ON_PI, frontWhite=25, frontRed=8, rearRed=7, readWhite=1):
+    def __init__(self, motorPin0=23, motorPin1=24, real=ON_PI, deadZone=0.05, frontWhite=25, frontRed=8, rearRed=7,
+                 readWhite=1):
+        '''
+
+        :param motorPin0:
+        :param motorPin1:
+        :param real:
+        :param deadZone: speeds too low to attempt to move motor
+        :param frontWhite:
+        :param frontRed:
+        :param rearRed:
+        :param readWhite:
+        '''
         self.motor = None;
         self.frontWhiteLight = None
         self.frontRedLights = None
         self.rearWhiteLights = None
         self.rearRedLights = None
         self.real = real
+        self.deadZone = deadZone
+        self.requestedSpeed = 0
         if real:
             self.motor = Motor(motorPin0, motorPin1)
             # self.frontWhiteLight = PWMLED()
             # TODO lights
 
     def getSpeed(self):
-        if self.real:
+        speed = self.requestedSpeed
+        #bodge, pretend we're at the deadzone speed even if we're not trying to move the motor
+        if self.real and abs(self.requestedSpeed) > self.deadZone:
             return self.motor.value
-        return 0
+        return speed
 
     def setSpeed(self, speed):
         '''
@@ -52,15 +68,17 @@ class Train():
             speed = 1
 
         if self.real:
-            if speed > 0.05:
+            if speed > self.deadZone:
                 self.motor.forward(speed)
-            elif speed < -0.05:
+            elif speed < -self.deadZone:
                 self.motor.backward(-speed)
             else:
                 self.motor.stop()
 
+        self.requestedSpeed = speed
+
     def serialise(self):
-        return json.dumps({"speed": self.getSpeed()})
+        return json.dumps({"speed": self.getSpeed(), "deadZone": self.deadZone})
 
 
 train = Train()

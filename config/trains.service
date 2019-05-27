@@ -2,6 +2,8 @@
 [Unit]
 Description=WiFiPiTrain motor control
 After=syslog.target
+Before=nginx.service
+
 
 [Service]
 Type=simple
@@ -14,3 +16,4 @@ RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
+RequiredBy=nginx.service
