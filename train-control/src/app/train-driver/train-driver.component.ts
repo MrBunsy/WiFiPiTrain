@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Train, TrainControlService } from '../train-control.service';
 import { map } from 'rxjs/operators';
+import { MatSliderChange } from '@angular/material';
 
 /**
  * Component to provide a throttle and other controls
@@ -24,7 +25,10 @@ export class TrainDriverComponent implements OnInit {
 
   }
 
-
+  public sliderChanged(event: MatSliderChange) {
+    console.log(event)
+    this.trainControl.setTrainSpeed(event.value);
+  }
 
   public changeSpeed(changeBy: number) {
     this.trainControl.changeSpeed(changeBy);
