@@ -95,7 +95,7 @@ class Train():
         self.requestedSpeed = speed
 
     def serialise(self):
-        return json.dumps({"speed": self.getSpeed(), "deadZone": self.deadZone, "reverse": self.reverse,
+        return json.dumps({"speed": abs(self.getSpeed()), "deadZone": self.deadZone, "reverse": self.reverse,
                            "headlights": self.headlights})
 
 
