@@ -2,19 +2,22 @@
   <!-- <button (click)="changeSpeed(+0.1)">More Forward</button>
   <button (click)="changeSpeed(-0.1)">More Backward</button> -->
   <!-- Current speed: {{currentSpeed$ | async}} -->
-  <div class="chunky">
-    <mat-slide-toggle color="primary" [checked]="(train | async)?.headlights" (change)="headlightsToggled($event)">
-      Headlights</mat-slide-toggle>
-  </div>
-  <div class="chunky">
-    <mat-slide-toggle color="primary" [checked]="(train | async)?.reverse" (change)="reverseToggled($event)">Reverse
-    </mat-slide-toggle>
+  <div>
+    <span class="chunky">
+      <mat-slide-toggle color="primary" [checked]="(train | async)?.headlights" (change)="headlightsToggled($event)">
+        Headlights</mat-slide-toggle>
+    </span>
+    <span class="chunky">
+      <mat-slide-toggle color="primary" [checked]="(train | async)?.reverse" (change)="reverseToggled($event)">Reverse
+      </mat-slide-toggle>
+    </span>
+
   </div>
   <div class="chunky">
     <mat-slider mouseWheel [value]="(train | async)?.speed" min="0" max="1" step="0.02" (input)="sliderChanged($event)"
       (mouseWheelUp)="mouseWheelUpFunc($event)" (mouseWheelDown)="mouseWheelDownFunc($event)"></mat-slider>
   </div>
-  <div class="chunky">
+  <div style="padding-left:20px;">
     <button (click)="stop()">STOP</button>
   </div>
 </div>
