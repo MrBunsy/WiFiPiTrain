@@ -42,7 +42,7 @@ export class TrainDriverComponent implements OnInit {
   }
 
   public headlightsToggled(event: MatSlideToggleChange) {
-    //TODO
+    this.trainControl.setHeadlights(event.checked)
   }
 
   public mouseWheelUpFunc(event) {
