@@ -123,10 +123,12 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             speed = float(data['speed'])
         if 'reverse' in data:
             reverse = bool(data['reverse'])
+            train.setReverse(reverse)
         if 'headlights' in data:
             train.setHeadlights(bool(data['headlights']))
 
         train.setSpeed(speed * (-1 if reverse else 1))
+
 
         self.send_response(200)
         self.end_headers()

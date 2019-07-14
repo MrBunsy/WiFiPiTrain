@@ -37,10 +37,11 @@ export class TrainDriverComponent implements OnInit {
   }
 
   public reverseToggled(event: MatSlideToggleChange) {
+    console.log("reverse toggled: " + event.checked)
     this.trainControl.setReverse(event.checked);
   }
 
-  public headlightsToggled(event: MatSlideToggleChange){
+  public headlightsToggled(event: MatSlideToggleChange) {
     //TODO
   }
 
