@@ -1,10 +1,13 @@
 <div>
 
-  <button (click)="changeSpeed(+0.1)">More Forward</button>
-  <button (click)="changeSpeed(-0.1)">More Backward</button>
-  Current speed: {{currentSpeed$ | async}}
+  <!-- <button (click)="changeSpeed(+0.1)">More Forward</button>
+  <button (click)="changeSpeed(-0.1)">More Backward</button> -->
+  <!-- Current speed: {{currentSpeed$ | async}} -->
+  <mat-slide-toggle color="primary" [checked]="(train | async)?.headlights" (change)="headlightsToggled($event)">Headlights</mat-slide-toggle>
   <br>
-  <button (click)="stop()">STOP</button>
+  <mat-slide-toggle color="primary" [checked]="(train | async)?.reverse" (change)="reverseToggled($event)">Reverse</mat-slide-toggle>
   <!-- vertical  -->
   <mat-slider mouseWheel [value]="(train | async)?.speed" min="0" max="1" step="0.02" (input)="sliderChanged($event)" (mouseWheelUp)="mouseWheelUpFunc($event)" (mouseWheelDown)="mouseWheelDownFunc($event)"></mat-slider>
+  <br>
+  <button (click)="stop()">STOP</button>
 </div>

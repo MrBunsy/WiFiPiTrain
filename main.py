@@ -35,20 +35,42 @@ class Train():
         self.frontRedLights = None
         self.rearWhiteLights = None
         self.rearRedLights = None
+        # really on a pi with a motor?
         self.real = real
         self.deadZone = deadZone
+        # user-facing controls
         self.requestedSpeed = 0
+        self.headlights = False
+        self.reverse = False
         if real:
             self.motor = Motor(motorPin0, motorPin1)
             # self.frontWhiteLight = PWMLED()
             # TODO lights
 
     def getSpeed(self):
+        '''
+        get speed, -1 to +1
+        :return:
+        '''
         speed = self.requestedSpeed
-        #bodge, pretend we're at the deadzone speed even if we're not trying to move the motor
+        # bodge, pretend we're at the deadzone speed even if we're not trying to move the motor
         if self.real and abs(self.requestedSpeed) > self.deadZone:
             return self.motor.value
         return speed
+
+    def getReverse(self):
+        return self.reverse
+
+    def setHeadlights(self, headlights):
+        self.headlights = headlights
+        #TODO actually change some GPIO based on settings
+
+    def setReverse(self, reverse):
+        self.reverse = reverse
+        currentSpeed = self.getSpeed()
+        if currentSpeed < 0 != reverse and currentSpeed != 0:
+            # need to change current speed, since we're going in the wrong direction
+            self.setSpeed(-currentSpeed)
 
     def setSpeed(self, speed):
         '''
@@ -56,11 +78,6 @@ class Train():
         :param speed: between -1 and 1, 0 represents not moving
         :return:
         '''
-
-        # if 1 < speed < -1:
-        #     print("Invalid speed")
-        #     # return
-
         if speed < -1:
             speed = -1
 
@@ -78,7 +95,8 @@ class Train():
         self.requestedSpeed = speed
 
     def serialise(self):
-        return json.dumps({"speed": self.getSpeed(), "deadZone": self.deadZone})
+        return json.dumps({"speed": self.getSpeed(), "deadZone": self.deadZone, "reverse": self.reverse,
+                           "headlights": self.headlights})
 
 
 train = Train()
@@ -95,52 +113,25 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers['Content-Length'])
         body = self.rfile.read(content_length)
         print(body.decode("ASCII"))
-        # print(str(body))
-        # data = parse_qs(body);
-        #
-        # print(data)
 
         data = json.loads(body.decode("ASCII"))
 
+        speed = abs(train.getSpeed())
+        reverse = train.getReverse()
+
         if 'speed' in data:
-            # if len(data['speed']) > 0:
-            #     print("setting speed to {}".format(data['speed'][0]))
-            train.setSpeed(float(data['speed']))
-            # else:
-            #     print("insuficient speed data")
-        else:
-            print("no speed data")
+            speed = float(data['speed'])
+        if 'reverse' in data:
+            reverse = bool(data['reverse'])
+        if 'headlights' in data:
+            train.setHeadlights(bool(data['headlights']))
+
+        train.setSpeed(speed * (-1 if reverse else 1))
 
         self.send_response(200)
         self.end_headers()
-        # response = BytesIO()
-        # response.write(b'This is POST request to  ')
-        # response.write(self.path.encode('ASCII'))
-        # response.write(b' Received: ')
-        # response.write(body)
-        # self.wfile.write(response.getvalue())
         self.wfile.write(train.serialise().encode("ASCII"))
 
 
 httpd = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
 httpd.serve_forever()
-
-"""
-POST /drive HTTP/1.1
-Host: foo.example
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 9
-
-speed=0.6
-
-"""
-
-"""
-POST /drive HTTP/1.1
-Host: foo.example
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 7
-
-speed=0
-
-"""

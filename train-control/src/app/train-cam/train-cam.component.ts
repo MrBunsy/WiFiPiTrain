@@ -30,6 +30,9 @@ export class TrainCamComponent implements OnInit, AfterViewInit {
 
     this.websocketSig = new WebSocketSignalingChannel(this.connectButton.nativeElement, this.disconnectButton.nativeElement, this.video)
 
+    if (this.video.hasAttribute("controls")) {
+      this.video.removeAttribute("controls")
+    }
   }
 
 }

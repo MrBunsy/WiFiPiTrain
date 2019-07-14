@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, combineLatest, interval, merge, Subject } from 'rxjs';
-import { switchMap, tap, first } from 'rxjs/operators';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, combineLatest, interval, merge, Subject, throwError, of } from 'rxjs';
+import { switchMap, tap, first, catchError, retry, share } from 'rxjs/operators';
 
 export class Train {
   public speed: number;
   public deadZone: number;
-  //todo lights
+  public reverse: boolean;
+  public headlights: boolean;
 }
 
 const httpOptions = {
@@ -39,7 +40,9 @@ export class TrainControlService {
       switchMap(now => this.fetchTrainState())
     )
 
-    this.trainState = merge(this.trainUpdated.asObservable(), updatingTrain);
+    this.trainState = merge(this.trainUpdated.asObservable(), updatingTrain).pipe(
+      share()
+    );
 
 
   }
@@ -51,6 +54,28 @@ export class TrainControlService {
   public setTrainSpeed(speed: number) {
 
     this.setTrainSpeedRequest(speed).pipe(first()).toPromise().then();
+  }
+
+  public setReverse(reverse: boolean) {
+    this.setTrainReverseRequest(reverse).pipe(first()).subscribe();
+  }
+
+  public setHeadlights(headlights: boolean) {
+    this.setTrainHeadlightsRequest(headlights).pipe(first()).subscribe();
+  }
+
+  private setTrainReverseRequest(reverse: boolean): Observable<Train> {
+    return this.http.post<Train>(this.trainUrl, { reverse: reverse }, httpOptions).pipe(
+      //since we get the current train state in reply to any change request, make use of it
+      tap(train => this.trainUpdated.next(train))
+    );
+  }
+
+  private setTrainHeadlightsRequest(headlights: boolean): Observable<Train> {
+    return this.http.post<Train>(this.trainUrl, { headlights: headlights }, httpOptions).pipe(
+      //since we get the current train state in reply to any change request, make use of it
+      tap(train => this.trainUpdated.next(train))
+    );
   }
 
   private setTrainSpeedRequest(speed: number): Observable<Train> {
@@ -72,11 +97,35 @@ export class TrainControlService {
   }
 
   /**
+   * Direct from angular docs
+   * @param error 
+   */
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      // A client-side or network error occurred. Handle it accordingly.
+      console.error('An error occurred:', error.error.message);
+    } else {
+      // The backend returned an unsuccessful response code.
+      // The response body may contain clues as to what went wrong,
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        `body was: ${error.error}`);
+    }
+    // return an observable with a user-facing error message
+    return throwError(
+      'Something bad happened; please try again later.');
+  };
+
+  /**
    * perform HTTP request to get latest train state
    */
   private fetchTrainState(): Observable<Train> {
     let trainHTTP = this.http.get<Train>(
       this.trainUrl)
+      .pipe(
+        retry(3),
+        catchError(this.handleError)
+      );
 
     return trainHTTP;
 

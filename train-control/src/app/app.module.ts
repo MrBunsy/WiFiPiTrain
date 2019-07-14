@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatSliderModule } from '@angular/material';
+import { MatSliderModule, MatSlideToggleModule } from '@angular/material';
 
 import { MouseWheelDirective } from './mousewheel.directive';
 
@@ -27,7 +27,8 @@ import { TrainCabComponent } from './train-cab/train-cab.component';
     HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    MatSliderModule
+    MatSliderModule,
+    MatSlideToggleModule
 
   ],
   exports: [

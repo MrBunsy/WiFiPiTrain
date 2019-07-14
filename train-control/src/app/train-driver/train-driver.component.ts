@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Train, TrainControlService } from '../train-control.service';
 import { map } from 'rxjs/operators';
-import { MatSliderChange } from '@angular/material';
+import { MatSliderChange, MatSlideToggleChange } from '@angular/material';
 
 /**
  * Component to provide a throttle and other controls
@@ -14,7 +14,7 @@ import { MatSliderChange } from '@angular/material';
 })
 export class TrainDriverComponent implements OnInit {
   public train: Observable<Train>
-  public currentSpeed$: Observable<number>
+  public currentSpeed$: Observable<number>;
 
   constructor(private trainControl: TrainControlService) {
     this.train = this.trainControl.getTrainState();
@@ -22,7 +22,6 @@ export class TrainDriverComponent implements OnInit {
     this.currentSpeed$ = this.train.pipe(
       map(train => Math.round(100 * train.speed) / 100)
     )
-
   }
 
   public sliderChanged(event: MatSliderChange) {
@@ -35,6 +34,14 @@ export class TrainDriverComponent implements OnInit {
   }
   public stop() {
     this.trainControl.setTrainSpeed(0);
+  }
+
+  public reverseToggled(event: MatSlideToggleChange) {
+    this.trainControl.setReverse(event.checked);
+  }
+
+  public headlightsToggled(event: MatSlideToggleChange){
+    //TODO
   }
 
   public mouseWheelUpFunc(event) {
