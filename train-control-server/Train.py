@@ -2,11 +2,6 @@
 from __future__ import print_function, division
 
 from gpiozero import Motor, PWMLED
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from io import BytesIO
-# from urllib.parse import urlparse
-import urllib
-from urllib.parse import parse_qs
 import json
 import os.path
 
@@ -17,8 +12,16 @@ ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
 # motor = Motor(23,24)
 
 class Train():
-    def __init__(self, motorPin0=23, motorPin1=24, real=ON_PI, deadZone=0.05, frontWhite=25, frontRed=8, rearRed=7,
-                 readWhite=1):
+    def __init__(self, motorPin0=23,
+                 motorPin1=24,
+                 real=ON_PI,
+                 deadZone=0.05,
+                 frontWhite=None,
+                 frontRed=None,
+                 rearRed=None,
+                 rearWhite=None,
+                 whiteBrightness=1,
+                 redBrightness=1):
         '''
 
         :param motorPin0:
@@ -32,9 +35,11 @@ class Train():
         '''
         self.motor = None;
         self.frontWhiteLight = None
-        self.frontRedLights = None
-        self.rearWhiteLights = None
-        self.rearRedLights = None
+        self.frontRedLight = None
+        self.rearWhiteLight = None
+        self.rearRedLight = None
+        self.redBrightness = redBrightness
+        self.whiteBrightness = whiteBrightness
         # really on a pi with a motor?
         self.real = real
         self.deadZone = deadZone
@@ -42,10 +47,17 @@ class Train():
         self.requestedSpeed = 0
         self.headlights = False
         self.reverse = False
+
         if real:
             self.motor = Motor(motorPin0, motorPin1)
-            # self.frontWhiteLight = PWMLED()
-            # TODO lights
+            if frontWhite is not None:
+                self.frontWhiteLight = PWMLED(frontWhite)
+            if frontRed is not None:
+                self.frontRedLight = PWMLED(frontRed)
+            if rearWhite is not None:
+                self.rearWhiteLight = PWMLED(rearWhite)
+            if rearRed is not None:
+                self.rearRedLight = PWMLED(rearRed)
 
     def getSpeed(self):
         '''
@@ -63,7 +75,41 @@ class Train():
 
     def setHeadlights(self, headlights):
         self.headlights = headlights
-        #TODO actually change some GPIO based on settings
+
+        frontWhite = {}
+        frontRed = {}
+        rearWhite = {}
+        rearRed = {}
+
+        lights = [frontWhite, frontRed, rearWhite, rearRed]
+
+        frontWhite['on'] = False
+        frontRed['on'] = False
+        rearWhite['on'] = False
+        rearRed['on'] = False
+        frontWhite['led'] = self.frontWhiteLight
+        frontRed['led'] = self.frontRedLight
+        rearWhite['led'] = self.rearWhiteLight
+        rearRed['led'] = self.rearRedLight
+        frontWhite['brightness'] = self.whiteBrightness
+        frontRed['brightness'] = self.redBrightness
+        rearWhite['brightness'] = self.whiteBrightness
+        rearRed['brightness'] = self.redBrightness
+
+        if self.headlights:
+            if self.reverse:
+                frontRed['on'] = True
+                rearWhite['on'] = True
+            else:
+                frontWhite['on'] = True
+                rearRed['on'] = True
+
+        for light in lights:
+            if light['led'] is not None:
+                if light['on']:
+                    light['led'].value = light['brightness']
+                else:
+                    light['led'].off()
 
     def setReverse(self, reverse):
         self.reverse = reverse
@@ -71,6 +117,8 @@ class Train():
         if currentSpeed < 0 != reverse and currentSpeed != 0:
             # need to change current speed, since we're going in the wrong direction
             self.setSpeed(-currentSpeed)
+        # force the headlights to sort themselves out
+        self.setHeadlights(self.headlights)
 
     def setSpeed(self, speed):
         '''
@@ -97,47 +145,3 @@ class Train():
     def serialise(self):
         return json.dumps({"speed": abs(self.getSpeed()), "deadZone": self.deadZone, "reverse": self.reverse,
                            "headlights": self.headlights})
-
-
-train = Train()
-
-
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        print("GET - reporting status")
-        self.wfile.write(train.serialise().encode("ASCII"))
-
-    def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        body = self.rfile.read(content_length)
-        print(body.decode("ASCII"))
-
-        data = json.loads(body.decode("ASCII"))
-
-        speed = abs(train.getSpeed())
-        reverse = train.getReverse()
-
-        if 'speed' in data:
-            speed = float(data['speed'])
-            print("Speed: " +str(speed))
-        if 'reverse' in data:
-            reverse = bool(data['reverse'])
-            print("Reverse: "+ ("True" if reverse else "False"))
-            train.setReverse(reverse)
-        if 'headlights' in data:
-            headlights = bool(data['headlights'])
-            train.setHeadlights(headlights)
-            print("Headlights: " + ("True" if headlights else "False"))
-
-        train.setSpeed(speed * (-1 if reverse else 1))
-
-
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(train.serialise().encode("ASCII"))
-
-
-httpd = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
-httpd.serve_forever()
