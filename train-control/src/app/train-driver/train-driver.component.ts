@@ -15,6 +15,7 @@ import { MatSliderChange, MatSlideToggleChange } from '@angular/material';
 export class TrainDriverComponent implements OnInit {
   public train: Observable<Train>
   public currentSpeed$: Observable<number>;
+  public hasHeadlights$: Observable<boolean>;//TODO
 
   constructor(private trainControl: TrainControlService) {
     this.train = this.trainControl.getTrainState();

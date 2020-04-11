@@ -14,13 +14,13 @@ ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
 # motor = Motor(23,24)
 
 class Point():
-    def __init__(self, pwnPin=11,
-                 servoPowerPin=13,
+    def __init__(self, pwnPin=17,
+                 servoPowerPin=21,
                  real=ON_PI,
-                 position0PWM=0.2,
-                 position1PWM=0.8,
+                 position0PWM=-1.0,
+                 position1PWM=1.0,
                  startPosition = 0,
-                 timeToChange = 2):
+                 timeToChange = 1):
         '''
 
         :param pwmPin the pin which connects to the PWM input of the servo
@@ -65,15 +65,19 @@ class Point():
         :param position:
         :return:
         '''
+        print("point setting to position {}".format(position))
         self.lock.acquire()
         self.changing = True
         self.position = position
         if self.servo:
+            print("setting servo")
             self.servo.value = self.position0 if self.position == 0 else self.position1
         self.lock.release()
         if self.relay:
+            print("setting relay on")
             self.relay.on()
             time.sleep(self.timeToChange)
+            print("setting relay off")
             self.relay.off()
 
         self.lock.acquire()
@@ -81,7 +85,17 @@ class Point():
         self.lock.release()
 
     def serialise(self):
+        return json.dumps(self.getSimpleObject())
+
+    def getSimpleObject(self):
+        '''
+        get a simple representation, good for serialising
+        :return:
+        '''
         self.lock.acquire()
-        text = json.dumps({"position": self.position, "changing": self.changing})
+        simple = {"position": self.position, "changing": self.changing}
         self.lock.release()
-        return text
+        return simple
+    '''
+    
+    '''

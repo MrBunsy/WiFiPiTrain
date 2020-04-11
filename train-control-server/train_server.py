@@ -9,7 +9,7 @@ import urllib
 from urllib.parse import parse_qs
 import json
 import os.path
-from .Train import Train
+from trains.train import Train
 
 
 train = Train()

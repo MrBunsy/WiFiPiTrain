@@ -3,7 +3,7 @@
   <button (click)="changeSpeed(-0.1)">More Backward</button> -->
   <!-- Current speed: {{currentSpeed$ | async}} -->
   <div>
-    <span class="chunky">
+    <span *ngIf="hasHeadlights$ | async" class="chunky">
       <mat-slide-toggle color="primary" [checked]="(train | async)?.headlights" (change)="headlightsToggled($event)">
         Headlights</mat-slide-toggle>
     </span>
