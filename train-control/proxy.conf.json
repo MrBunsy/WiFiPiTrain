@@ -1,0 +1,6 @@
+{
+  "/points": {
+    "target": "http://192.168.1.191:8000",
+    "secure": false
+  }
+}

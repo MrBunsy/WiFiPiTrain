@@ -13,6 +13,8 @@ import { TrainControlService } from './train-control.service';
 import { AppComponent } from './app.component';
 import { TrainCamComponent } from './train-cam/train-cam.component';
 import { TrainCabComponent } from './train-cab/train-cab.component';
+import { SignalBoxComponent } from './signal-box/signal-box.component';
+import { PointLeverComponent } from './point-lever/point-lever.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,9 @@ import { TrainCabComponent } from './train-cab/train-cab.component';
     AppComponent,
     TrainCamComponent,
     TrainCabComponent,
-    MouseWheelDirective
+    MouseWheelDirective,
+    SignalBoxComponent,
+    PointLeverComponent
   ],
   imports: [
     BrowserModule,
