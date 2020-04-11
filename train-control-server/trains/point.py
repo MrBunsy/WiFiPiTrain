@@ -20,7 +20,7 @@ class Point():
                  position0PWM=-1.0,
                  position1PWM=1.0,
                  startPosition = 0,
-                 timeToChange = 1):
+                 timeToChange = 0.5):
         '''
 
         :param pwmPin the pin which connects to the PWM input of the servo
@@ -65,6 +65,9 @@ class Point():
         :param position:
         :return:
         '''
+        if self.position == position:
+            print("already in this position, not doing anything")
+            return
         print("point setting to position {}".format(position))
         self.lock.acquire()
         self.changing = True
