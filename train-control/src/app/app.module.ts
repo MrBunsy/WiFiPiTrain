@@ -15,6 +15,7 @@ import { TrainCamComponent } from './train-cam/train-cam.component';
 import { TrainCabComponent } from './train-cab/train-cab.component';
 import { SignalBoxComponent } from './signal-box/signal-box.component';
 import { PointLeverComponent } from './point-lever/point-lever.component';
+import { LandingPageComponent } from './landing-page/landing-page.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { PointLeverComponent } from './point-lever/point-lever.component';
     TrainCabComponent,
     MouseWheelDirective,
     SignalBoxComponent,
-    PointLeverComponent
+    PointLeverComponent,
+    LandingPageComponent
   ],
   imports: [
     BrowserModule,

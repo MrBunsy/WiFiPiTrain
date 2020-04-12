@@ -46,6 +46,10 @@ export class PointControlService {
 
   }
 
+  // public isThisDeviceAPointsServer(): Observable<boolean>{
+    
+  // }
+
   public getPoints():Observable<Point[]>{
     return this.pointsState;
   }

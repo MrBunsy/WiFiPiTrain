@@ -39,7 +39,8 @@ class PointsServer:
         '''
         #TODO load from config
         self.points = [
-            Point()
+            Point(),
+            Point(1,4,timeToChange=0.5)
         ]
         self.max_simultaneous = max_simultaneous
         self.lock = threading.RLock()
