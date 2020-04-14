@@ -30,3 +30,7 @@ deb http://ftp.us.debian.org/debian sid main
 To upgrade your packages, run
 
 apt-get update && apt-get upgrade libc6
+
+ 
+Camera streaming: https://github.com/kclyu/rpi-webrtc-streamer-deb
+https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.6/webrtc-streamer-v0.2.6-Linux-armv6l-Release.tar.gz

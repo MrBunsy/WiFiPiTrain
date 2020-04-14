@@ -6,6 +6,7 @@ import json
 import os.path
 import time
 import threading
+from http.server import BaseHTTPRequestHandler
 
 # hacky
 ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
@@ -14,13 +15,18 @@ ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
 # motor = Motor(23,24)
 
 class Point():
-    def __init__(self, pwnPin=17,
-                 servoPowerPin=21,
-                 real=ON_PI,
-                 position0PWM=-1.0,
-                 position1PWM=1.0,
-                 startPosition = 0,
-                 timeToChange = 0.5):
+    @staticmethod
+    def getDefaultConfig():
+        return {"pwmPin": 17,
+                "servoPowerPin": 21,
+                "real": ON_PI,
+                "position0PWM": -1.0,
+                "position1PWM": 1.0,
+                "startPosition": 0,
+                "timeToChange": 0.5
+                }
+
+    def __init__(self, config):
         '''
 
         :param pwmPin the pin which connects to the PWM input of the servo
@@ -31,22 +37,22 @@ class Point():
         '''
         self.servo = None
         self.relay = None
-        #is position actively changing?
+        # is position actively changing?
         self.changing = True
-        self.timeToChange = timeToChange
+        self.timeToChange = config["timeToChange"]
         self.lock = threading.RLock()
 
-        #unknown at startup
+        # unknown at startup
         self.position = -1
 
         # really on a pi with a motor?
-        self.real = real
-        self.position0 = position0PWM
-        self.position1 = position1PWM
+        self.real = config["real"]
+        self.position0 = config["position0PWM"]
+        self.position1 = config["position1PWM"]
 
-        if real:
-            self.servo = Servo(pwnPin)
-            self.relay = DigitalOutputDevice(servoPowerPin)
+        if config["real"]:
+            self.servo = Servo(config["pwmPin"])
+            self.relay = DigitalOutputDevice(config["servoPowerPin"])
 
     def getPosition(self):
         '''
@@ -58,8 +64,7 @@ class Point():
         self.lock.release()
         return position
 
-
-    def setPostionBlocking(self, position = 0):
+    def setPostionBlocking(self, position=0):
         '''
         Will block until the point has been changed (few seconds)
         :param position:
@@ -99,6 +104,105 @@ class Point():
         simple = {"position": self.position, "changing": self.changing}
         self.lock.release()
         return simple
-    '''
-    
-    '''
+
+
+class PointsServer:
+
+    @staticmethod
+    def serviceQueue(self):
+        '''
+        Run forever in a thread, processing jobs that end up on the queue
+        :return:
+        '''
+
+        while True:
+            with self.condition:
+                print("job thread waiting")
+                self.condition.wait()
+                print("job thread woken")
+                with self.lock:
+                    job = self.jobs.pop()
+                    self.points[job["index"]].setPostionBlocking(job["position"])
+
+    def __init__(self, points, max_simultaneous=1):
+        '''
+        :param points points list loaded from configuration
+        :param max_simultaneous: how active servos at once (limit max power draw)
+        '''
+        self.points = points
+        self.max_simultaneous = max_simultaneous
+        self.lock = threading.RLock()
+        self.condition = threading.Condition()
+        self.jobs = []
+        self.thread = threading.Thread(target=PointsServer.serviceQueue, args=(self,), daemon=True)
+        self.thread.start()
+
+    def getSimpleObject(self):
+        return [point.getSimpleObject() for point in self.points]
+
+    def setPosition(self, pointIndex, position):
+        '''
+
+        :param pointIndex:
+        :param position:
+        :return:
+        '''
+
+        if pointIndex < len(self.points):
+            print("Submitting job to threadpool")
+            # future = self.threadPool.submit(self.points[pointIndex].setPostionBlocking, self.points[pointIndex], position)
+            # done = future.done()
+            # print("done? {}".format("YES" if done else "NO"))
+            # self.points[pointIndex].setPostionBlocking(position)
+            with self.lock:
+                self.jobs.append({"index": pointIndex, "position": position})
+                print("job submitted")
+            with self.condition:
+                print("notifying")
+                self.condition.notify_all()
+        else:
+            print("Invalid point")
+
+
+class PointsServerHTTPHandler(BaseHTTPRequestHandler):
+
+    points = None
+
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        print("GET - reporting status")
+        self.returnSerialised()
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_length)
+        print(body.decode("ASCII"))
+
+        data = json.loads(body.decode("ASCII"))
+
+        point_index = None
+        position = None
+
+        if 'point_index' in data:
+            point_index = int(data['point_index'])
+            print("Point: " + str(point_index))
+        if 'position' in data:
+            position = int(data['position'])
+            print("Position: " + str(position))
+
+        if point_index is not None and position is not None:
+            '''
+            Set the point, should trigger event to occur in a different thread
+            '''
+            print("input valid, attempting to set point {} to {}".format(point_index, position) )
+            PointsServerHTTPHandler.points.setPosition(point_index, position)
+
+        self.send_response(200)
+        self.end_headers()
+        self.returnSerialised()
+
+
+    def returnSerialised(self):
+        summary = {"type": "points", "points": PointsServerHTTPHandler.points.getSimpleObject()}
+        self.wfile.write(json.dumps(summary).encode("ASCII"))

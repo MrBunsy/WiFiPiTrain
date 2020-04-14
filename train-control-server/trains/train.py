@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import print_function, division
 
+from http.server import BaseHTTPRequestHandler
+
 from gpiozero import Motor, PWMLED
 import json
 import os.path
@@ -12,16 +14,23 @@ ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
 # motor = Motor(23,24)
 
 class Train():
-    def __init__(self, motorPin0=23,
-                 motorPin1=24,
-                 real=ON_PI,
-                 deadZone=0.05,
-                 frontWhite=None,
-                 frontRed=None,
-                 rearRed=None,
-                 rearWhite=None,
-                 whiteBrightness=1,
-                 redBrightness=1):
+
+    @staticmethod
+    def getDefaultConfig():
+        return {
+            "motorPin0": 23,
+            "motorPin1": 24,
+            "real": ON_PI,
+            "deadZone": 0.05,
+            "frontWhitePin": None,
+            "frontRedPin": None,
+            "rearRedPin": None,
+            "rearWhitePin": None,
+            "whiteBrightness": 1,
+            "redBrightness": 1
+        }
+
+    def __init__(self, config):
         '''
 
         :param motorPin0:
@@ -38,26 +47,26 @@ class Train():
         self.frontRedLight = None
         self.rearWhiteLight = None
         self.rearRedLight = None
-        self.redBrightness = redBrightness
-        self.whiteBrightness = whiteBrightness
+        self.redBrightness = config["redBrightness"]
+        self.whiteBrightness = config["whiteBrightness"]
         # really on a pi with a motor?
-        self.real = real
-        self.deadZone = deadZone
+        self.real = config["real"]
+        self.deadZone = config["deadZone"]
         # user-facing controls
         self.requestedSpeed = 0
         self.headlights = False
         self.reverse = False
 
-        if real:
-            self.motor = Motor(motorPin0, motorPin1)
-            if frontWhite is not None:
-                self.frontWhiteLight = PWMLED(frontWhite)
-            if frontRed is not None:
-                self.frontRedLight = PWMLED(frontRed)
-            if rearWhite is not None:
-                self.rearWhiteLight = PWMLED(rearWhite)
-            if rearRed is not None:
-                self.rearRedLight = PWMLED(rearRed)
+        if config["real"]:
+            self.motor = Motor(config["motorPin0"], config["motorPin1"])
+            if config["frontWhitePin"] is not None:
+                self.frontWhiteLight = PWMLED(config["frontWhitePin"])
+            if config["frontRedPin"] is not None:
+                self.frontRedLight = PWMLED(config["frontRedPin"])
+            if config["rearWhitePin"] is not None:
+                self.rearWhiteLight = PWMLED(config["rearWhitePin"])
+            if config["rearRedPin"] is not None:
+                self.rearRedLight = PWMLED(config["rearRedPin"])
 
     def getSpeed(self):
         '''
@@ -72,6 +81,13 @@ class Train():
 
     def getReverse(self):
         return self.reverse
+
+    def hasHeadlights(self):
+        '''
+        return true if this train is configured with any headlights
+        '''
+        return self.frontWhiteLight is not None or self.rearWhiteLight is not None \
+               or self.frontRedLight is not None or self.rearRedLight is not None
 
     def setHeadlights(self, headlights):
         self.headlights = headlights
@@ -143,5 +159,51 @@ class Train():
         self.requestedSpeed = speed
 
     def serialise(self):
-        return json.dumps({"speed": abs(self.getSpeed()), "deadZone": self.deadZone, "reverse": self.reverse,
-                           "headlights": self.headlights})
+        return json.dumps(self.getSimpleObject())
+
+    def getSimpleObject(self):
+        return {"speed": abs(self.getSpeed()), "deadZone": self.deadZone, "reverse": self.reverse,
+                           "headlights": self.headlights, "hasHeadlights": self.hasHeadlights()}
+
+
+class TrainServerHTTPHandler(BaseHTTPRequestHandler):
+
+    train = None
+
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        print("GET - reporting status")
+        self.returnSerialised()
+
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_length)
+        print(body.decode("ASCII"))
+
+        data = json.loads(body.decode("ASCII"))
+
+        speed = abs(TrainServerHTTPHandler.train.getSpeed())
+        reverse = TrainServerHTTPHandler.train.getReverse()
+
+        if 'speed' in data:
+            speed = float(data['speed'])
+            print("Speed: " + str(speed))
+        if 'reverse' in data:
+            reverse = bool(data['reverse'])
+            print("Reverse: " + ("True" if reverse else "False"))
+            TrainServerHTTPHandler.train.setReverse(reverse)
+        if 'headlights' in data:
+            headlights = bool(data['headlights'])
+            TrainServerHTTPHandler.train.setHeadlights(headlights)
+            print("Headlights: " + ("True" if headlights else "False"))
+
+        TrainServerHTTPHandler.train.setSpeed(speed * (-1 if reverse else 1))
+
+        self.send_response(200)
+        self.end_headers()
+        self.returnSerialised()
+
+    def returnSerialised(self):
+        summary = {"type": "train", "train": TrainServerHTTPHandler.train.getSimpleObject()}
+        self.wfile.write(json.dumps(summary).encode("ASCII"))
