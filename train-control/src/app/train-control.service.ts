@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, combineLatest, interval, merge, Subject, throwError, of } from 'rxjs';
-import { switchMap, tap, first, catchError, retry, share } from 'rxjs/operators';
+import { switchMap, tap, first, catchError, retry, share, map } from 'rxjs/operators';
+import { ServerResponse } from './point-control.service';
 
 export class Train {
   public speed: number;
   public deadZone: number;
   public reverse: boolean;
   public headlights: boolean;
+  public hasHeadlights: boolean;
 }
 
 const httpOptions = {
@@ -120,14 +122,18 @@ export class TrainControlService {
    * perform HTTP request to get latest train state
    */
   private fetchTrainState(): Observable<Train> {
-    let trainHTTP = this.http.get<Train>(
+
+    let trainHTTP: Observable<ServerResponse> = this.http.get<ServerResponse>(
       this.trainUrl)
       .pipe(
         retry(3),
         catchError(this.handleError)
       );
 
-    return trainHTTP;
+    let train = trainHTTP.pipe(
+      map(serverResponse => serverResponse.train),
+    );
+    return train;
 
   }
 

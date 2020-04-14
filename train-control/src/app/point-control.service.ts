@@ -14,7 +14,7 @@ export class Point {
 export class ServerResponse {
   public type: string;
   public points?: Point[];
-  public trains?: Train[];//doesn't exist yet
+  public train?: Train;
 }
 
 const httpOptions = {
@@ -32,7 +32,7 @@ export class PointControlService {
 
   constructor(private http: HttpClient) {
 
-    this.trainUrl = "/points/"
+    this.trainUrl = "/train/"
 
     let checkForUpdates = interval(1000);
 

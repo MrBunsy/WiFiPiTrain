@@ -20,6 +20,10 @@ export class TrainDriverComponent implements OnInit {
   constructor(private trainControl: TrainControlService) {
     this.train = this.trainControl.getTrainState();
 
+    this.hasHeadlights$ = this.train.pipe(
+      map(train => train.hasHeadlights)
+    )
+
     this.currentSpeed$ = this.train.pipe(
       map(train => Math.round(100 * train.speed) / 100)
     )
