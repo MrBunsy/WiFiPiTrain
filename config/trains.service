@@ -1,14 +1,13 @@
 # /lib/systemd/system/trains.service
 [Unit]
-Description=WiFiPiTrain motor control
+Description=WiFiPiTrain motor and points control
 After=syslog.target
 Before=nginx.service
 
 
 [Service]
 Type=simple
-#PIDFile=/var/run/trains.pid
-ExecStart=/usr/bin/python3 /usr/share/trains/main.py
+ExecStart=/usr/bin/python3 /usr/share/trains/server.py
 StandardOutput=journal
 StandardError=journal
 Restart=always
