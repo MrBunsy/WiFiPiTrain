@@ -12,7 +12,7 @@ httpd = None
 
 if config.hasPoints():
     print("Configured with points")
-    points = PointsServer(config.getPoints(), config.getSimultaniousPoints())
+    points = PointsServer(config.getPoints(), config.getSimultaneousPoints())
     PointsServerHTTPHandler.points = points
     httpd = HTTPServer(('0.0.0.0', 8000), PointsServerHTTPHandler)
 elif config.isTrain():

@@ -17,8 +17,8 @@ ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
 class Point():
     @staticmethod
     def getDefaultConfig():
-        return {"pwmPin": 17,
-                "servoPowerPin": 21,
+        return {"servoPin": 17,
+                "relayPin": 21,
                 "real": ON_PI,
                 "position0PWM": -1.0,
                 "position1PWM": 1.0,
@@ -51,8 +51,8 @@ class Point():
         self.position1 = config["position1PWM"]
 
         if config["real"]:
-            self.servo = Servo(config["pwmPin"])
-            self.relay = DigitalOutputDevice(config["servoPowerPin"])
+            self.servo = Servo(config["servoPin"])
+            self.relay = DigitalOutputDevice(config["relayPin"])
 
     def getPosition(self):
         '''
@@ -124,12 +124,12 @@ class PointsServer:
                     job = self.jobs.pop()
                     self.points[job["index"]].setPostionBlocking(job["position"])
 
-    def __init__(self, points, max_simultaneous=1):
+    def __init__(self, pointsConfig, max_simultaneous=1):
         '''
         :param points points list loaded from configuration
         :param max_simultaneous: how active servos at once (limit max power draw)
         '''
-        self.points = points
+        self.points = [Point(point) for point in pointsConfig]
         self.max_simultaneous = max_simultaneous
         self.lock = threading.RLock()
         self.condition = threading.Condition()

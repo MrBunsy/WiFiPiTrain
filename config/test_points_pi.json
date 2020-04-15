@@ -1,0 +1,11 @@
+{
+        "points":[
+                {
+                "servoPin" : 1,
+                "relayPin" : 4,
+                "position0PWM" : -0.6,
+                "position1PWM" : 0.6,
+                "timeToChange" : 0.4
+                }
+        ]
+}

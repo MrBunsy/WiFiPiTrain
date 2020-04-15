@@ -21,9 +21,9 @@ class PiConfig:
         if "points" in self.configBlob:
             return len(self.configBlob["points"]) > 0
 
-    def getSimultaniousPoints(self):
-        if "simultaniousPoints" in self.configBlob:
-            return int(self.configBlob["simultaniousPoints"])
+    def getSimultaneousPoints(self):
+        if "simultaneousPoints" in self.configBlob:
+            return int(self.configBlob["simultaneousPoints"])
         else:
             return 1
 
@@ -36,10 +36,10 @@ class PiConfig:
         if self.hasPoints():
             for json in self.configBlob["points"]:
                 config = Point.getDefaultConfig()
-                if "pwmPin" in json:
-                    config["pwmPin"] = int(json["pwmPin"])
-                if "servoPowerPin" in json:
-                    config["serverPowerPin"] = int(json["servoPowerPin"])
+                if "servoPin" in json:
+                    config["servoPin"] = int(json["servoPin"])
+                if "relayPin" in json:
+                    config["relayPin"] = int(json["relayPin"])
                 if "position0PWM" in json:
                     config["position0PWM"] = float(json["position0PWM"])
                 if "position1PWM" in json:
