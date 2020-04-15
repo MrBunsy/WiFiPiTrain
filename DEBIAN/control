@@ -1,6 +1,6 @@
 Package: lw-trains
 Architecture: armhf
-Depends: python3-gpiozero
+Depends: python3-gpiozero nginx
 Description: Python server and web GUI to drive model trains and points over wifi on a pi
 Version: VERSIONHERE
 Maintainer: "Luke Wallin" <trains@lukewallin.co.uk>

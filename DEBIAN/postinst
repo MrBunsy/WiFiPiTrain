@@ -1,4 +1,4 @@
 #!/bin/bash
 
-systemctl enable trains
-systemctl restart trains
+systemctl enable trains nginx
+systemctl restart trains nginx
