@@ -1,6 +1,6 @@
 #! /bin/bash
 
-rm -r out
+rm -r out || true
 
 mkdir -p out/var/www/
 pushd train-control
@@ -18,3 +18,8 @@ cp config/trains.service out/etc/systemd/system/trains.service
 mkdir -p out/usr/share/trains/trains
 cp -r train-control-server/*.py out/usr/share/trains/
 cp -r train-control-server/trains/*.py out/usr/share/trains/trains/
+
+
+mkdir build
+
+fakeroot dpkg-deb -b out build
