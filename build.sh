@@ -1,7 +1,5 @@
 #! /bin/bash
 
-rm -r build || true
-
 mkdir -p build/var/www/
 pushd train-control
 ng build
@@ -20,10 +18,12 @@ cp -r train-control-server/*.py build/usr/share/trains/
 cp -r train-control-server/trains/*.py build/usr/share/trains/trains/
 
 
-mkdir out || true
+mkdir -p out
 
 VERSION="$(git describe)"
 
 sed -i "s/VERSIONHERE/${VERSION}/g" build/DEBIAN/control
 
 fakeroot dpkg-deb -b build out
+
+rm -r build
