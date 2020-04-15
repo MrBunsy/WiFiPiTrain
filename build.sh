@@ -20,6 +20,10 @@ cp -r train-control-server/*.py out/usr/share/trains/
 cp -r train-control-server/trains/*.py out/usr/share/trains/trains/
 
 
-mkdir build
+mkdir build || true
+
+VERSION="$(git describe)"
+
+sed -i 's/VERSION/${VERSION}/g' out/DEBIAN/control
 
 fakeroot dpkg-deb -b out build
