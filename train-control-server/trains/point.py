@@ -148,8 +148,8 @@ class PointsServer:
 
         if powerLightConfig is not None:
             self.light = PowerLight(powerLightConfig)
-            self.light.set(true)
-            
+            self.light.set(True)
+
         self.points = [Point(point) for point in pointsConfig]
         self.max_simultaneous = max_simultaneous
         self.lock = threading.RLock()
