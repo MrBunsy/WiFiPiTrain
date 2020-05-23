@@ -11,6 +11,22 @@ from http.server import BaseHTTPRequestHandler
 # hacky
 ON_PI = os.path.isfile("/sys/firmware/devicetree/base/model")
 
+class PowerLight():
+    @staticmethod
+    def getDefaultConfig():
+        return {"pin":7,
+                "real": ON_PI}
+
+    def __init__(self, config):
+        if config["real"]:
+            self.led = DigitalOutputDevice(config["pin"])
+
+    def set(self, on = True):
+        if self.led:
+            if on:
+                self.led.on()
+            else:
+                self.led.off()
 
 # motor = Motor(23,24)
 

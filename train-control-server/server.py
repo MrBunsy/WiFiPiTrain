@@ -10,6 +10,11 @@ config = PiConfig()
 
 httpd = None
 
+if config.hasPowerLight():
+    print("Configured with power light")
+    light = config.getPowerLight()
+    light.set(True)
+
 if config.hasPoints():
     print("Configured with points")
     points = PointsServer(config.getPoints(), config.getSimultaneousPoints())

@@ -1,4 +1,4 @@
-from .point import Point
+from .point import Point, PowerLight
 from .train import Train
 import json
 
@@ -22,10 +22,22 @@ class PiConfig:
             return len(self.configBlob["points"]) > 0
 
     def getSimultaneousPoints(self):
+        '''
+        how many servos we can change at the same time (current limitation worries)
+        '''
         if "simultaneousPoints" in self.configBlob:
             return int(self.configBlob["simultaneousPoints"])
         else:
             return 1
+
+    def hasPowerLight(self):
+        if "powerLight" in self.configBlob:
+            return true
+
+    def getPowerLight(self):
+        if not self.hasPowerLight():
+            return None;
+        return PowerLight(self.configBlob["powerLight"])
 
     def getPoints(self):
         '''
