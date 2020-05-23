@@ -32,12 +32,15 @@ class PiConfig:
 
     def hasPowerLight(self):
         if "powerLight" in self.configBlob:
-            return true
+            return True
 
     def getPowerLight(self):
         if not self.hasPowerLight():
             return None;
-        return PowerLight(self.configBlob["powerLight"])
+        config = PowerLight.getDefaultConfig()
+        if "pin" in self.configBlob["powerLight"]:
+            config["pin"] = int(self.configBlob["powerLight"]["pin"])
+        return config
 
     def getPoints(self):
         '''

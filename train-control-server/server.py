@@ -10,14 +10,10 @@ config = PiConfig()
 
 httpd = None
 
-if config.hasPowerLight():
-    print("Configured with power light")
-    light = config.getPowerLight()
-    light.set(True)
 
 if config.hasPoints():
     print("Configured with points")
-    points = PointsServer(config.getPoints(), config.getSimultaneousPoints())
+    points = PointsServer(config.getPoints(), config.getSimultaneousPoints(), config.getPowerLight())
     PointsServerHTTPHandler.points = points
     httpd = HTTPServer(('0.0.0.0', 8000), PointsServerHTTPHandler)
 elif config.isTrain():

@@ -140,11 +140,16 @@ class PointsServer:
                     job = self.jobs.pop()
                     self.points[job["index"]].setPostionBlocking(job["position"])
 
-    def __init__(self, pointsConfig, max_simultaneous=1):
+    def __init__(self, pointsConfig, max_simultaneous=1, powerLightConfig = None):
         '''
         :param points points list loaded from configuration
         :param max_simultaneous: how active servos at once (limit max power draw)
         '''
+
+        if powerLightConfig is not None:
+            self.light = PowerLight(powerLightConfig)
+            self.light.set(true)
+            
         self.points = [Point(point) for point in pointsConfig]
         self.max_simultaneous = max_simultaneous
         self.lock = threading.RLock()
