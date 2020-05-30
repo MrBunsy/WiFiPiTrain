@@ -67,22 +67,25 @@ export class TrainControlService {
   }
 
   private setTrainReverseRequest(reverse: boolean): Observable<Train> {
-    return this.http.post<Train>(this.trainUrl, { reverse: reverse }, httpOptions).pipe(
+    return this.http.post<ServerResponse>(this.trainUrl, { reverse: reverse }, httpOptions).pipe(
       //since we get the current train state in reply to any change request, make use of it
+      map(response => response.train),
       tap(train => this.trainUpdated.next(train))
     );
   }
 
   private setTrainHeadlightsRequest(headlights: boolean): Observable<Train> {
-    return this.http.post<Train>(this.trainUrl, { headlights: headlights }, httpOptions).pipe(
+    return this.http.post<ServerResponse>(this.trainUrl, { headlights: headlights }, httpOptions).pipe(
       //since we get the current train state in reply to any change request, make use of it
+      map(response => response.train),
       tap(train => this.trainUpdated.next(train))
     );
   }
 
   private setTrainSpeedRequest(speed: number): Observable<Train> {
-    let request = this.http.post<Train>(this.trainUrl, { speed: speed }, httpOptions).pipe(
+    let request = this.http.post<ServerResponse>(this.trainUrl, { speed: speed }, httpOptions).pipe(
       //since we get the current train state in reply to any change request, make use of it
+      map(response => response.train),
       tap(train => this.trainUpdated.next(train))
     );
 
