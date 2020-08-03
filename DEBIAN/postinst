@@ -1,4 +1,6 @@
 #!/bin/bash
 
+rm -f /etc/nginx/sites-enabled/default
+
 systemctl enable trains nginx
 systemctl restart trains nginx
