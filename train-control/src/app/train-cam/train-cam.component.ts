@@ -22,14 +22,14 @@ export class TrainCamComponent implements OnInit, AfterViewInit {
   }
 
   public playStream() {
-  //   this.wsavc.playStream();
+    this.wsavc.playStream();
 
   }
   public stopStream() {
-  //   this.wsavc.stopStream();
+    this.wsavc.stopStream();
   }
   public disconnect() {
-  //   this.wsavc.disconnect();
+    this.wsavc.disconnect();
   }
 
   ngAfterViewInit(): void {
