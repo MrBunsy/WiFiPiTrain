@@ -1,5 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
+import * as WsAvcPlayer from 'h264-live-player';
+
 // declare class WebSocketSignalingChannel: any;
 declare var WebSocketSignalingChannel: any;
 /***
@@ -12,27 +14,32 @@ declare var WebSocketSignalingChannel: any;
 })
 export class TrainCamComponent implements OnInit, AfterViewInit {
 
-  private websocketSig: any;
-  private video: HTMLVideoElement;
+  private canvas: HTMLCanvasElement;
+  private wsavc: WsAvcPlayer;
 
-  @ViewChild("remoteVideo") videoElement: ElementRef;
-  @ViewChild("connectButton") connectButton: ElementRef;
-  @ViewChild("disconnectButton") disconnectButton: ElementRef;
+  @ViewChild("canvasElement") canvasElement: ElementRef;
 
   constructor() { }
 
   ngOnInit() {
   }
 
+  public playStream() {
+    this.wsavc.playStream();
+
+  }
+  public stopStream() {
+    this.wsavc.stopStream();
+  }
+  public disconnect() {
+    this.wsavc.disconnect();
+  }
+
   ngAfterViewInit(): void {
 
-    this.video = this.videoElement.nativeElement;
-
-    this.websocketSig = new WebSocketSignalingChannel(this.connectButton.nativeElement, this.disconnectButton.nativeElement, this.video)
-
-    if (this.video.hasAttribute("controls")) {
-      this.video.removeAttribute("controls")
-    }
+    this.canvas = this.canvasElement.nativeElement;
+    this.wsavc = new WsAvcPlayer(this.canvas, "webgl", 1, 35);
+    this.wsavc.connect("ws://" + document.location.host + "/ws");
   }
 
 }

@@ -1,6 +1,4 @@
-<video #remoteVideo autoplay playsinline muted width="100%" height="100%" style=" transform: rotate(180deg); max-width:500px; "></video> 
-
-<div style="padding-left:20px;padding-bottom:20px;">
-  <button #connectButton>Connect</button>
-  <button #disconnectButton>Disconnect</button>
-</div>
+<canvas #canvasElement></canvas>
+<button type="button" (click)="playStream()">Start Video</button>
+<button type="button" (click)="stopStream()">Stop Video</button>
+<button type="button" (click)="disconnect()">Disconnect</button>

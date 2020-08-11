@@ -16,12 +16,14 @@ import { TrainCabComponent } from './train-cab/train-cab.component';
 import { SignalBoxComponent } from './signal-box/signal-box.component';
 import { PointLeverComponent } from './point-lever/point-lever.component';
 import { LandingPageComponent } from './landing-page/landing-page.component';
+import { TrainCamWebrtcComponent } from './train-cam-webrtc/train-cam-webrtc.component';
 
 @NgModule({
   declarations: [
     TrainDriverComponent,
     AppComponent,
     TrainCamComponent,
+    TrainCamWebrtcComponent,
     TrainCabComponent,
     MouseWheelDirective,
     SignalBoxComponent,

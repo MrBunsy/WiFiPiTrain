@@ -5,11 +5,11 @@ import { switchMap, tap, first, catchError, retry, share, map } from 'rxjs/opera
 import { ServerResponse } from './point-control.service';
 
 export class Train {
-  public speed: number;
-  public deadZone: number;
-  public reverse: boolean;
-  public headlights: boolean;
-  public hasHeadlights: boolean;
+  public speed: number = 0;
+  public deadZone: number = 0;
+  public reverse: boolean = false;
+  public headlights: boolean = false;
+  public hasHeadlights: boolean = false;
 }
 
 const httpOptions = {

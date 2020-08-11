@@ -1,10 +1,10 @@
 {
   "/points": {
-    "target": "http://192.168.1.138:8000",
+    "target": "http://192.168.1.100:8000",
     "secure": false
   },
    "/train": {
-    "target": "http://192.168.1.138:8000",
+    "target": "http://192.168.1.100:8000",
     "secure": false
   }
 }
