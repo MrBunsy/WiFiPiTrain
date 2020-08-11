@@ -1,9 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
 import * as WsAvcPlayer from 'h264-live-player';
-
-// declare class WebSocketSignalingChannel: any;
-declare var WebSocketSignalingChannel: any;
 /***
  * Component to display a webrtc camera stream from the pi camera
  */
@@ -25,14 +22,14 @@ export class TrainCamComponent implements OnInit, AfterViewInit {
   }
 
   public playStream() {
-    this.wsavc.playStream();
+  //   this.wsavc.playStream();
 
   }
   public stopStream() {
-    this.wsavc.stopStream();
+  //   this.wsavc.stopStream();
   }
   public disconnect() {
-    this.wsavc.disconnect();
+  //   this.wsavc.disconnect();
   }
 
   ngAfterViewInit(): void {
