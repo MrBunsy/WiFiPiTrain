@@ -27,7 +27,8 @@ class Train():
             "rearRedPin": None,
             "rearWhitePin": None,
             "whiteBrightness": 1,
-            "redBrightness": 1
+            "redBrightness": 1,
+            "hasCamera": False
         }
 
     def __init__(self, config):
@@ -56,6 +57,8 @@ class Train():
         self.requestedSpeed = 0
         self.headlights = False
         self.reverse = False
+
+        self.config = config
 
         if config["real"]:
             self.motor = Motor(config["motorPin0"], config["motorPin1"])
@@ -88,6 +91,9 @@ class Train():
         '''
         return self.frontWhiteLight is not None or self.rearWhiteLight is not None \
                or self.frontRedLight is not None or self.rearRedLight is not None
+
+    def hasCamera(self):
+        return self.config['hasCamera']
 
     def setHeadlights(self, headlights):
         self.headlights = headlights
@@ -163,7 +169,7 @@ class Train():
 
     def getSimpleObject(self):
         return {"speed": abs(self.getSpeed()), "deadZone": self.deadZone, "reverse": self.reverse,
-                           "headlights": self.headlights, "hasHeadlights": self.hasHeadlights()}
+                           "headlights": self.headlights, "hasHeadlights": self.hasHeadlights(), "hasCamera": self.hasCamera()}
 
 
 class TrainServerHTTPHandler(BaseHTTPRequestHandler):

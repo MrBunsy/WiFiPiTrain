@@ -10,6 +10,7 @@ export class Train {
   public reverse: boolean = false;
   public headlights: boolean = false;
   public hasHeadlights: boolean = false;
+  public hasCamera: boolean = false;
 }
 
 const httpOptions = {

@@ -1,4 +1,6 @@
-<train-cam></train-cam>
-<br>
-<br>
+<ng-container *ngIf="hasCamera$ | async">
+    <train-cam></train-cam>
+    <br>
+    <br>
+</ng-container>
 <train-driver></train-driver>

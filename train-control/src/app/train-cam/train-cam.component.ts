@@ -12,7 +12,7 @@ import * as WsAvcPlayer from 'h264-live-player';
 export class TrainCamComponent implements OnInit, AfterViewInit {
 
   private canvas: HTMLCanvasElement;
-  private wsavc: WsAvcPlayer;
+  private wsavc: WsAvcPlayer = null;
 
   @ViewChild("canvasElement") canvasElement: ElementRef;
 
@@ -21,15 +21,15 @@ export class TrainCamComponent implements OnInit, AfterViewInit {
   ngOnInit() {
   }
 
-  public playStream() {
-    this.wsavc.playStream();
 
+  public startStream(){
+    this.wsavc.playStream();
   }
-  public stopStream() {
+
+
+  public restartStream() {
     this.wsavc.stopStream();
-  }
-  public disconnect() {
-    this.wsavc.disconnect();
+    this.wsavc.playStream();
   }
 
   ngAfterViewInit(): void {
@@ -37,6 +37,10 @@ export class TrainCamComponent implements OnInit, AfterViewInit {
     this.canvas = this.canvasElement.nativeElement;
     this.wsavc = new WsAvcPlayer(this.canvas, "webgl", 1, 35);
     this.wsavc.connect("ws://" + document.location.host + "/ws");
+    let self = this;
+    //TODO wait for websocket to be ready
+    setTimeout(function(){self.startStream();}, 3000);
+  
   }
 
 }
