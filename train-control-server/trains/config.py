@@ -97,5 +97,7 @@ class PiConfig:
             config["whiteBrightness"] = float(json["whiteBrightness"])
         if "redBrightness" in json:
             config["redBrightness"] = float(json["redBrightness"])
+        if "hasCamera" in json:
+            config["hasCamera"] = bool(json["hasCamera"])
 
         return config
