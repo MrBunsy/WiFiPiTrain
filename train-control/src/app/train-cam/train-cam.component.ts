@@ -13,6 +13,7 @@ export class TrainCamComponent implements OnInit, AfterViewInit {
 
   private canvas: HTMLCanvasElement;
   private wsavc: WsAvcPlayer = null;
+  private playing = false;
 
   @ViewChild("canvasElement") canvasElement: ElementRef;
 
@@ -22,14 +23,25 @@ export class TrainCamComponent implements OnInit, AfterViewInit {
   }
 
 
-  public startStream(){
+  public startStream() {
     this.wsavc.playStream();
+    this.playing = true;
+  }
+
+  public stopStream() {
+    if (this.playing) {
+      this.wsavc.stopStream();
+      this.playing = false;
+    }
   }
 
 
   public restartStream() {
-    this.wsavc.stopStream();
+    if (this.playing) {
+      this.wsavc.stopStream();
+    }
     this.wsavc.playStream();
+    this.playing = true;
   }
 
   ngAfterViewInit(): void {
@@ -39,8 +51,9 @@ export class TrainCamComponent implements OnInit, AfterViewInit {
     this.wsavc.connect("ws://" + document.location.host + "/ws");
     let self = this;
     //TODO wait for websocket to be ready
-    setTimeout(function(){self.startStream();}, 3000);
-  
+    //can't decide if I want to auto-connect or not. Ideally should fix multiple viewers first (works, but not threaded carefully enough)
+    // setTimeout(function () { self.startStream(); }, 3000);
+
   }
 
 }

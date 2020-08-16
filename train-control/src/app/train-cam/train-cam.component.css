@@ -1,3 +1,6 @@
-div.chunky{
-    padding:20px;
+.video{
+    width:100%;
+    max-height:75vh;
+    max-width:133vh;/*16:9 * 75vh*/
   }
+
